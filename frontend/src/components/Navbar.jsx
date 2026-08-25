@@ -19,7 +19,7 @@ import { useCart } from '../context/CartContext';
 import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = ({ onOpenDemoModal }) => {
-  const { user, logout, quickSwitchRole, isAuthenticated, isFarmer, isBuyer, isAdmin } = useAuth();
+  const { user, logout, quickSwitchRole, isAuthenticated, isFarmer, isBuyer, isAdmin, isLogistics } = useAuth();
   const { itemCount } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,6 +27,13 @@ const Navbar = ({ onOpenDemoModal }) => {
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
+
+  const getDashboardPath = () => {
+    if (isAdmin) return '/admin-dashboard';
+    if (isFarmer) return '/farmer-dashboard';
+    if (isLogistics) return '/logistics';
+    return '/buyer-dashboard';
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
@@ -92,21 +99,15 @@ const Navbar = ({ onOpenDemoModal }) => {
             {/* Role-based Dashboard Direct Link */}
             {isAuthenticated && (
               <Link
-                to={
-                  isAdmin
-                    ? '/admin-dashboard'
-                    : isFarmer
-                    ? '/farmer-dashboard'
-                    : '/buyer-dashboard'
-                }
+                to={getDashboardPath()}
                 className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                  location.pathname.includes('dashboard')
+                  location.pathname.includes('dashboard') || (isLogistics && location.pathname === '/logistics')
                     ? 'text-brand-700 bg-brand-50 font-semibold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4 text-amber-600" />
-                {isAdmin ? 'Admin Panel' : isFarmer ? 'Farmer Portal' : 'My Orders'}
+                {isAdmin ? 'Admin Panel' : isFarmer ? 'Farmer Portal' : isLogistics ? 'Fleet Hub' : 'My Orders'}
               </Link>
             )}
           </nav>
@@ -125,10 +126,10 @@ const Navbar = ({ onOpenDemoModal }) => {
 
             {/* Quick Demo Role Switcher Pills */}
             <div className="hidden xl:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs">
-              <span className="px-2 text-slate-500 font-medium">Switch Role:</span>
+              <span className="px-2 text-slate-500 font-medium">Switch:</span>
               <button
                 onClick={() => { quickSwitchRole('farmer'); navigate('/farmer-dashboard'); }}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                className={`px-2 py-1 rounded-lg font-medium transition-all ${
                   isFarmer ? 'bg-white text-brand-700 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900'
                 }`}
                 title="Switch to Farmer profile"
@@ -136,8 +137,8 @@ const Navbar = ({ onOpenDemoModal }) => {
                 🌾 Farmer
               </button>
               <button
-                onClick={() => { quickSwitchRole('buyer'); navigate('/marketplace'); }}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                onClick={() => { quickSwitchRole('buyer'); navigate('/buyer-dashboard'); }}
+                className={`px-2 py-1 rounded-lg font-medium transition-all ${
                   isBuyer ? 'bg-white text-brand-700 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900'
                 }`}
                 title="Switch to Buyer profile"
@@ -146,12 +147,21 @@ const Navbar = ({ onOpenDemoModal }) => {
               </button>
               <button
                 onClick={() => { quickSwitchRole('admin'); navigate('/admin-dashboard'); }}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
+                className={`px-2 py-1 rounded-lg font-medium transition-all ${
                   isAdmin ? 'bg-white text-brand-700 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900'
                 }`}
                 title="Switch to Admin profile"
               >
                 ⚡ Admin
+              </button>
+              <button
+                onClick={() => { quickSwitchRole('logistics'); navigate('/logistics'); }}
+                className={`px-2 py-1 rounded-lg font-medium transition-all ${
+                  isLogistics ? 'bg-white text-brand-700 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Switch to Logistics profile"
+              >
+                🚚 Logistics
               </button>
             </div>
 
@@ -194,7 +204,7 @@ const Navbar = ({ onOpenDemoModal }) => {
                       <p className="text-[11px] text-slate-500 capitalize">{user?.role} • {user?.location || 'India'}</p>
                     </div>
                     <Link
-                      to={isAdmin ? '/admin-dashboard' : isFarmer ? '/farmer-dashboard' : '/buyer-dashboard'}
+                      to={getDashboardPath()}
                       className="flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium"
                     >
                       <LayoutDashboard className="w-4 h-4 text-brand-600" />
@@ -202,7 +212,7 @@ const Navbar = ({ onOpenDemoModal }) => {
                     </Link>
                     <button
                       onClick={logout}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 font-medium text-left"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 font-medium text-left cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign Out
@@ -248,11 +258,31 @@ const Navbar = ({ onOpenDemoModal }) => {
             <Sparkles className="w-4 h-4" /> 1-Click Interactive Demo Flow
           </button>
           
-          <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-center text-xs my-2">
-            <button onClick={() => { quickSwitchRole('farmer'); setMobileMenuOpen(false); }} className="py-1.5 rounded-lg bg-white font-bold text-brand-700">🌾 Farmer</button>
-            <button onClick={() => { quickSwitchRole('buyer'); setMobileMenuOpen(false); }} className="py-1.5 rounded-lg bg-white font-bold text-brand-700">🛒 Buyer</button>
-            <button onClick={() => { quickSwitchRole('admin'); setMobileMenuOpen(false); }} className="py-1.5 rounded-lg bg-white font-bold text-brand-700">⚡ Admin</button>
+          <div className="grid grid-cols-4 gap-1 bg-slate-100 p-1 rounded-xl text-center text-[11px] my-2">
+            <button onClick={() => { quickSwitchRole('farmer'); navigate('/farmer-dashboard'); setMobileMenuOpen(false); }} className="py-1.5 rounded-lg bg-white font-bold text-brand-700">🌾 Farmer</button>
+            <button onClick={() => { quickSwitchRole('buyer'); navigate('/buyer-dashboard'); setMobileMenuOpen(false); }} className="py-1.5 rounded-lg bg-white font-bold text-brand-700">🛒 Buyer</button>
+            <button onClick={() => { quickSwitchRole('admin'); navigate('/admin-dashboard'); setMobileMenuOpen(false); }} className="py-1.5 rounded-lg bg-white font-bold text-brand-700">⚡ Admin</button>
+            <button onClick={() => { quickSwitchRole('logistics'); navigate('/logistics'); setMobileMenuOpen(false); }} className="py-1.5 rounded-lg bg-white font-bold text-brand-700">🚚 Fleet</button>
           </div>
+
+          {!isAuthenticated && (
+            <div className="grid grid-cols-2 gap-2 pt-1 pb-2 border-b border-slate-100">
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 text-center text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 text-center text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-xs"
+              >
+                Join Market
+              </Link>
+            </div>
+          )}
 
           <Link
             to="/marketplace"
@@ -276,13 +306,21 @@ const Navbar = ({ onOpenDemoModal }) => {
             <Truck className="w-5 h-5 text-indigo-600" /> Smart Route Logistics
           </Link>
           {isAuthenticated && (
-            <Link
-              to={isAdmin ? '/admin-dashboard' : isFarmer ? '/farmer-dashboard' : '/buyer-dashboard'}
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 font-medium text-sm"
-            >
-              <LayoutDashboard className="w-5 h-5 text-amber-600" /> Role Dashboard
-            </Link>
+            <>
+              <Link
+                to={getDashboardPath()}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 font-medium text-sm"
+              >
+                <LayoutDashboard className="w-5 h-5 text-amber-600" /> Role Dashboard
+              </Link>
+              <button
+                onClick={() => { logout(); setMobileMenuOpen(false); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 font-medium text-sm text-left"
+              >
+                <LogOut className="w-5 h-5" /> Sign Out ({user?.name})
+              </button>
+            </>
           )}
         </div>
       )}

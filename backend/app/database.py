@@ -35,7 +35,6 @@ class LocalCollection:
                 match = True
                 for k, v in query.items():
                     if isinstance(v, dict):
-                        # Simple operator support like $in, $gte, $lte, $regex
                         if "$in" in v and doc.get(k) not in v["$in"]:
                             match = False
                             break
@@ -112,6 +111,70 @@ class LocalCollection:
         return len(self.find(query))
 
 
+class MongoCollectionWrapper:
+    """
+    Seamless wrapper for native PyMongo collection:
+    - Automatically converts Mongo `_id` to string `id`
+    - Returns python lists for find()
+    - Handles query and sort parameters identically
+    """
+    def __init__(self, raw_collection):
+        self.raw_col = raw_collection
+        self.name = raw_collection.name
+
+    def _sanitize_doc(self, doc: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        if not doc:
+            return None
+        doc = dict(doc)
+        if "_id" in doc:
+            if "id" not in doc:
+                doc["id"] = str(doc["_id"])
+            doc["_id"] = str(doc["_id"])
+        return doc
+
+    def find(self, query: Optional[Dict[str, Any]] = None, sort_by: Optional[str] = None, reverse: bool = False) -> List[Dict[str, Any]]:
+        q = query or {}
+        cursor = self.raw_col.find(q)
+        if sort_by:
+            direction = -1 if reverse else 1
+            cursor = cursor.sort(sort_by, direction)
+        docs = list(cursor)
+        return [self._sanitize_doc(d) for d in docs]
+
+    def find_one(self, query: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        doc = self.raw_col.find_one(query)
+        return self._sanitize_doc(doc)
+
+    def insert_one(self, doc: Dict[str, Any]) -> Dict[str, Any]:
+        d = dict(doc)
+        if "id" not in d:
+            d["id"] = str(uuid.uuid4())
+        if "created_at" not in d:
+            d["created_at"] = datetime.utcnow().isoformat()
+        if "updated_at" not in d:
+            d["updated_at"] = datetime.utcnow().isoformat()
+        
+        # Keep id as indexed field in MongoDB
+        d["_id"] = d["id"]
+        self.raw_col.insert_one(d)
+        return self._sanitize_doc(d)
+
+    def update_one(self, query: Dict[str, Any], update: Dict[str, Any]) -> bool:
+        if "$set" not in update:
+            update = {"$set": update}
+        update["$set"]["updated_at"] = datetime.utcnow().isoformat()
+        res = self.raw_col.update_one(query, update)
+        return res.matched_count > 0
+
+    def delete_one(self, query: Dict[str, Any]) -> bool:
+        res = self.raw_col.delete_one(query)
+        return res.deleted_count > 0
+
+    def count_documents(self, query: Optional[Dict[str, Any]] = None) -> int:
+        q = query or {}
+        return self.raw_col.count_documents(q)
+
+
 class DatabaseManager:
     def __init__(self):
         self.use_mongo = False
@@ -119,26 +182,29 @@ class DatabaseManager:
         self.mongo_db = None
         self.collections: Dict[str, Any] = {}
 
-        if settings.MONGODB_URI:
+        mongo_uri = settings.MONGODB_URI.strip() if settings.MONGODB_URI else os.getenv("MONGODB_URI", "").strip()
+
+        if mongo_uri:
             try:
                 from pymongo import MongoClient
-                self.mongo_client = MongoClient(settings.MONGODB_URI, serverSelectionTimeoutMS=2000)
-                # Test connection
-                self.mongo_client.server_info()
+                self.mongo_client = MongoClient(mongo_uri, serverSelectionTimeoutMS=4000)
+                # Test connection ping
+                self.mongo_client.admin.command('ping')
                 self.mongo_db = self.mongo_client[settings.DATABASE_NAME]
                 self.use_mongo = True
-                print(" Connected to MongoDB successfully!")
+                print(" Connected to MongoDB Database successfully!")
             except Exception as e:
-                print(f" MongoDB connection failed ({e}). Falling back to local high-performance document store.")
+                print(f" MongoDB connection error: {e}. Using local document storage.")
                 self.use_mongo = False
         else:
-            print(" Using local document store (data/ directory). Set MONGODB_URI to connect to live MongoDB instance.")
+            print(" Using local document store (data/ directory). Set MONGODB_URI to connect to MongoDB Atlas / Local.")
 
     def get_collection(self, name: str):
-        if self.use_mongo and self.mongo_db is not None:
-            return self.mongo_db[name]
         if name not in self.collections:
-            self.collections[name] = LocalCollection(name, settings.DATA_DIR)
+            if self.use_mongo and self.mongo_db is not None:
+                self.collections[name] = MongoCollectionWrapper(self.mongo_db[name])
+            else:
+                self.collections[name] = LocalCollection(name, settings.DATA_DIR)
         return self.collections[name]
 
 db = DatabaseManager()
