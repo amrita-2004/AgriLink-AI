@@ -10,7 +10,7 @@ const api = axios.create({
 
 // Interceptor to attach JWT token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('agrilink_token');
+  const token = localStorage.getItem('framx_token') || localStorage.getItem('agrilink_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
