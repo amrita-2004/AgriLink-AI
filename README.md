@@ -1,5 +1,7 @@
 # AgriLink AI – AI-Powered Farmer-to-Market Digital Platform 🌾🚀
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amrita-2004/AgriLink-AI)
+
 > **"From Farm to Market, Without Unnecessary Middlemen."**
 
 AgriLink AI is a production-grade digital agricultural marketplace that connects farmers and Farmer Producer Organizations (FPOs) directly with consumers, retailers, restaurants, and bulk buyers.
