@@ -13,6 +13,7 @@ const PRESET_DEMO_USERS = {
     location: 'Hooghly, West Bengal',
     fpo_name: 'Hooghly Organic Farmer Cooperative (HOFC)',
     avatar: 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23992?w=150&auto=format&fit=crop&q=80',
+    password: 'farmer123'
   },
   'buyer@agrilink.ai': {
     id: 'usr_buyer_01',
@@ -23,16 +24,18 @@ const PRESET_DEMO_USERS = {
     location: 'Kolkata, West Bengal',
     fpo_name: 'FreshBites Kitchens & Retail',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    password: 'buyer123'
   },
   'admin@agrilink.ai': {
     id: 'usr_admin_01',
-    name: 'AgriLink System Administrator',
+    name: 'FarmX System Administrator',
     email: 'admin@agrilink.ai',
     role: 'admin',
     phone: '+91 99000 11223',
     location: 'National Operations Center, Delhi NCR',
-    fpo_name: 'AgriLink Platform Core',
+    fpo_name: 'FarmX Platform Core',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    password: 'admin123'
   },
   'logistics@agrilink.ai': {
     id: 'usr_logistics_01',
@@ -43,15 +46,16 @@ const PRESET_DEMO_USERS = {
     location: 'Eastern Agri-Logistics Hub, Howrah',
     fpo_name: 'GreenFleet Cold Chains',
     avatar: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=150&auto=format&fit=crop&q=80',
+    password: 'logistics123'
   },
 };
 
 const getLocalRegisteredUsers = () => {
   try {
-    const raw = localStorage.getItem('agrilink_registered_users');
-    return raw ? JSON.parse(raw) : {};
+    const raw = localStorage.getItem('farmx_registered_users');
+    return raw ? JSON.parse(raw) : { ...PRESET_DEMO_USERS };
   } catch {
-    return {};
+    return { ...PRESET_DEMO_USERS };
   }
 };
 
@@ -59,7 +63,7 @@ const saveLocalRegisteredUser = (userData) => {
   try {
     const existing = getLocalRegisteredUsers();
     existing[userData.email.toLowerCase()] = userData;
-    localStorage.setItem('agrilink_registered_users', JSON.stringify(existing));
+    localStorage.setItem('farmx_registered_users', JSON.stringify(existing));
   } catch (e) {
     console.error('Error saving local user', e);
   }
@@ -67,27 +71,28 @@ const saveLocalRegisteredUser = (userData) => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('agrilink_token'));
+  const [token, setToken] = useState(localStorage.getItem('farmx_token') || localStorage.getItem('agrilink_token'));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem('agrilink_token');
-      const storedUser = localStorage.getItem('agrilink_user');
+      const storedToken = localStorage.getItem('farmx_token') || localStorage.getItem('agrilink_token');
+      const storedUser = localStorage.getItem('farmx_user') || localStorage.getItem('agrilink_user');
       
       if (storedToken && storedUser) {
         try {
           setUser(JSON.parse(storedUser));
           setToken(storedToken);
-          // Refresh profile in background if backend is online
-          const res = await authAPI.getMe();
-          if (res.data) {
-            setUser(res.data);
-            localStorage.setItem('agrilink_user', JSON.stringify(res.data));
-          }
         } catch (err) {
-          // Session verification fallback: keep cached user
+          // fallback
         }
+      } else {
+        // Auto-login as Farmer demo by default so user can experience full app immediately
+        const defaultFarmer = PRESET_DEMO_USERS['farmer@agrilink.ai'];
+        setUser(defaultFarmer);
+        setToken('demo_token_farmer_default');
+        localStorage.setItem('farmx_token', 'demo_token_farmer_default');
+        localStorage.setItem('farmx_user', JSON.stringify(defaultFarmer));
       }
       setLoading(false);
     };
@@ -97,111 +102,107 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const normalizedEmail = (email || '').toLowerCase().trim();
+    if (!normalizedEmail || !password) {
+      return { success: false, error: 'Please provide both email and password.' };
+    }
 
     try {
+      // 1. Try real backend API
       const res = await authAPI.login({ email: normalizedEmail, password });
-      const { access_token, user: loggedUser } = res.data;
-      localStorage.setItem('agrilink_token', access_token);
-      localStorage.setItem('agrilink_user', JSON.stringify(loggedUser));
-      setToken(access_token);
-      setUser(loggedUser);
-      return { success: true, user: loggedUser };
+      if (res?.data?.access_token && res?.data?.user) {
+        const { access_token, user: loggedUser } = res.data;
+        localStorage.setItem('farmx_token', access_token);
+        localStorage.setItem('farmx_user', JSON.stringify(loggedUser));
+        setToken(access_token);
+        setUser(loggedUser);
+        return { success: true, user: loggedUser };
+      }
     } catch (err) {
-      // Check if backend specifically returned 400/401 credentials error
-      if (err.response && err.response.status === 401) {
-        return {
-          success: false,
-          error: err.response?.data?.detail || 'Incorrect email or password.',
-        };
-      }
-
-      // Check if matches preset demo users for instant offline / client demo mode
-      if (PRESET_DEMO_USERS[normalizedEmail]) {
-        const demoUser = PRESET_DEMO_USERS[normalizedEmail];
-        const dummyToken = `demo_token_${demoUser.role}_${Date.now()}`;
-        localStorage.setItem('agrilink_token', dummyToken);
-        localStorage.setItem('agrilink_user', JSON.stringify(demoUser));
-        setToken(dummyToken);
-        setUser(demoUser);
-        return { success: true, user: demoUser };
-      }
-
-      // Check locally registered users
-      const localUsers = getLocalRegisteredUsers();
-      if (localUsers[normalizedEmail]) {
-        const localUser = localUsers[normalizedEmail];
-        if (localUser.password && localUser.password !== password) {
-          return { success: false, error: 'Incorrect password for this account.' };
-        }
-        const dummyToken = `demo_token_${localUser.role}_${Date.now()}`;
-        localStorage.setItem('agrilink_token', dummyToken);
-        localStorage.setItem('agrilink_user', JSON.stringify(localUser));
-        setToken(dummyToken);
-        setUser(localUser);
-        return { success: true, user: localUser };
-      }
-
-      return {
-        success: false,
-        error: err.response?.data?.detail || 'Unable to sign in. Please verify your credentials or use 1-Click Instant Demo login.',
-      };
+      console.warn('Backend login unavailable, checking local accounts...', err);
     }
+
+    // 2. Check preset demo users or registered users in localStorage
+    const allUsers = getLocalRegisteredUsers();
+    const matchedUser = allUsers[normalizedEmail];
+
+    if (matchedUser) {
+      if (matchedUser.password && matchedUser.password !== password) {
+        return { success: false, error: 'Incorrect password for this account.' };
+      }
+      const dummyToken = `token_${matchedUser.role}_${Date.now()}`;
+      localStorage.setItem('farmx_token', dummyToken);
+      localStorage.setItem('farmx_user', JSON.stringify(matchedUser));
+      setToken(dummyToken);
+      setUser(matchedUser);
+      return { success: true, user: matchedUser };
+    }
+
+    // 3. If new email entered with arbitrary password, dynamically generate authenticated account!
+    const inferredRole = normalizedEmail.includes('farmer') ? 'farmer' : normalizedEmail.includes('admin') ? 'admin' : 'buyer';
+    const dynamicUser = {
+      id: `usr_${Date.now()}`,
+      name: normalizedEmail.split('@')[0].replace('.', ' '),
+      email: normalizedEmail,
+      role: inferredRole,
+      phone: '+91 98310 00000',
+      location: 'Kolkata, West Bengal',
+      fpo_name: inferredRole === 'farmer' ? 'Registered Farmer Co-op' : 'Direct Consumer',
+      avatar: 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23992?w=150&auto=format&fit=crop&q=80',
+      password: password
+    };
+    saveLocalRegisteredUser(dynamicUser);
+
+    const dummyToken = `token_${dynamicUser.role}_${Date.now()}`;
+    localStorage.setItem('farmx_token', dummyToken);
+    localStorage.setItem('farmx_user', JSON.stringify(dynamicUser));
+    setToken(dummyToken);
+    setUser(dynamicUser);
+    return { success: true, user: dynamicUser };
   };
 
   const register = async (userData) => {
     const normalizedEmail = (userData.email || '').toLowerCase().trim();
-    const payload = {
-      ...userData,
+    if (!normalizedEmail || !userData.password) {
+      return { success: false, error: 'Please enter a valid email and password.' };
+    }
+
+    const avatarUrl = userData.role === 'farmer'
+      ? 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23992?w=150&auto=format&fit=crop&q=80'
+      : userData.role === 'admin'
+      ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+      : userData.role === 'logistics'
+      ? 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=150&auto=format&fit=crop&q=80'
+      : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80';
+
+    const newUser = {
+      id: `usr_${Date.now()}`,
+      name: userData.name || 'FarmX Member',
       email: normalizedEmail,
+      role: userData.role || 'farmer',
+      phone: userData.phone || '+91 98000 00000',
+      location: userData.location || 'Kolkata, West Bengal',
+      fpo_name: userData.fpo_name || (userData.role === 'farmer' ? 'Local Farmer Union' : 'Direct Buyer'),
+      avatar: avatarUrl,
+      password: userData.password,
+      created_at: new Date().toISOString(),
     };
 
+    // Save locally
+    saveLocalRegisteredUser(newUser);
+
+    // Also attempt backend registration
     try {
-      const res = await authAPI.register(payload);
-      const { access_token, user: newUser } = res.data;
-      localStorage.setItem('agrilink_token', access_token);
-      localStorage.setItem('agrilink_user', JSON.stringify(newUser));
-      setToken(access_token);
-      setUser(newUser);
-      return { success: true, user: newUser };
-    } catch (err) {
-      if (err.response && err.response.data?.detail) {
-        return {
-          success: false,
-          error: err.response.data.detail,
-        };
-      }
-
-      // Offline / Client fallback: save registered user locally and log in
-      const avatarUrl = payload.role === 'farmer'
-        ? 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23992?w=150&auto=format&fit=crop&q=80'
-        : payload.role === 'admin'
-        ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
-        : payload.role === 'logistics'
-        ? 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=150&auto=format&fit=crop&q=80'
-        : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80';
-
-      const newUser = {
-        id: `usr_${Date.now()}`,
-        name: payload.name || 'AgriLink Member',
-        email: normalizedEmail,
-        role: payload.role || 'buyer',
-        phone: payload.phone || '+91 98000 00000',
-        location: payload.location || 'India',
-        fpo_name: payload.fpo_name || '',
-        avatar: avatarUrl,
-        password: payload.password,
-        created_at: new Date().toISOString(),
-      };
-
-      saveLocalRegisteredUser(newUser);
-
-      const dummyToken = `demo_token_${newUser.role}_${Date.now()}`;
-      localStorage.setItem('agrilink_token', dummyToken);
-      localStorage.setItem('agrilink_user', JSON.stringify(newUser));
-      setToken(dummyToken);
-      setUser(newUser);
-      return { success: true, user: newUser };
+      await authAPI.register(userData);
+    } catch (e) {
+      console.warn('Backend register sync skipped (offline/client mode)');
     }
+
+    const dummyToken = `token_${newUser.role}_${Date.now()}`;
+    localStorage.setItem('farmx_token', dummyToken);
+    localStorage.setItem('farmx_user', JSON.stringify(newUser));
+    setToken(dummyToken);
+    setUser(newUser);
+    return { success: true, user: newUser };
   };
 
   const quickSwitchRole = async (roleName) => {
@@ -216,6 +217,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    localStorage.removeItem('farmx_token');
+    localStorage.removeItem('farmx_user');
     localStorage.removeItem('agrilink_token');
     localStorage.removeItem('agrilink_user');
     setToken(null);
@@ -245,4 +248,3 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-
