@@ -15,7 +15,7 @@ const Footer = () => {
                 <Sprout className="w-5 h-5" />
               </div>
               <span className="font-display font-extrabold text-xl text-white tracking-tight">
-                FarmX<span className="text-brand-400">.AI</span>
+                FramX<span className="text-brand-400">.AI</span>
               </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">

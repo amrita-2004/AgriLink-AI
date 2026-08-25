@@ -79,7 +79,7 @@ const LandingPage = ({ onOpenDemoModal }) => {
 
               {/* Subheading */}
               <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                FarmX AI connects farmers and FPOs directly with consumers, retailers, restaurants, and bulk buyers while using AI-powered demand forecasting, intelligent fair pricing, and smart logistics to create a fairer and more efficient agricultural supply chain.
+                FramX AI connects farmers and FPOs directly with consumers, retailers, restaurants, and bulk buyers while using AI-powered demand forecasting, intelligent fair pricing, and smart logistics to create a fairer and more efficient agricultural supply chain.
               </p>
 
               {/* CTA Buttons */}
@@ -140,7 +140,7 @@ const LandingPage = ({ onOpenDemoModal }) => {
                     <div className="w-3 h-3 rounded-full bg-red-500" />
                     <div className="w-3 h-3 rounded-full bg-amber-500" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                    <span className="text-xs font-bold text-slate-400 ml-2">FarmX AI Live Engine</span>
+                    <span className="text-xs font-bold text-slate-400 ml-2">FramX AI Live Engine</span>
                   </div>
                   <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 animate-pulse">
                     Live Mandi Feed
@@ -162,7 +162,7 @@ const LandingPage = ({ onOpenDemoModal }) => {
                       <p className="text-base font-bold text-slate-300 line-through">₹22.00 /kg</p>
                     </div>
                     <div>
-                      <span className="text-slate-400">FarmX Fair Price:</span>
+                      <span className="text-slate-400">FramX Fair Price:</span>
                       <p className="text-lg font-extrabold text-emerald-400">₹28.00 /kg</p>
                     </div>
                   </div>
@@ -213,7 +213,7 @@ const LandingPage = ({ onOpenDemoModal }) => {
             Powered by 3 Intelligent Machine Learning Engines
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
-            FarmX AI replaces guesswork and predatory cartels with predictive data science tailored for Indian and global agriculture.
+            FramX AI replaces guesswork and predatory cartels with predictive data science tailored for Indian and global agriculture.
           </p>
         </div>
 
@@ -297,7 +297,7 @@ const LandingPage = ({ onOpenDemoModal }) => {
               Transparent Digital Supply Chain
             </span>
             <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white">
-              How FarmX AI Works from Harvest to Delivery
+              How FramX AI Works from Harvest to Delivery
             </h2>
             <p className="text-sm sm:text-base text-slate-400">
               End-to-end transparent transaction flow ensuring fair value, zero delayed payments, and fresh produce delivery.

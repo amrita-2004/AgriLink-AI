@@ -48,7 +48,7 @@ const Navbar = ({ onOpenDemoModal }) => {
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-display font-extrabold text-xl text-slate-900 tracking-tight">
-                  FarmX<span className="text-brand-600">.AI</span>
+                  FramX<span className="text-brand-600">.AI</span>
                 </span>
                 <span className="px-1.5 py-0.5 text-[10px] font-bold bg-brand-100 text-brand-700 rounded-md uppercase tracking-wider">
                   Smart Market

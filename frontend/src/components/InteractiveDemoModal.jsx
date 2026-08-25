@@ -71,7 +71,7 @@ const InteractiveDemoModal = ({ isOpen, onClose, onFinish }) => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-lg text-white">FarmX AI – Guided Live Demo</h3>
+                <h3 className="font-bold text-lg text-white">FramX AI – Guided Live Demo</h3>
                 <span className="px-2 py-0.5 text-[10px] font-extrabold bg-white text-orange-700 rounded-full shadow-xs">
                   Requirement #17 Scenario
                 </span>

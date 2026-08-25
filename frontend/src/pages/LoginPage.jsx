@@ -62,7 +62,7 @@ const LoginPage = () => {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-700 to-emerald-400 flex items-center justify-center text-white mx-auto shadow-lg shadow-brand-600/30">
             <Sprout className="w-7 h-7" />
           </div>
-          <h1 className="font-display font-black text-2xl text-slate-900">Sign in to FarmX AI</h1>
+          <h1 className="font-display font-black text-2xl text-slate-900">Sign in to FramX AI</h1>
           <p className="text-xs text-slate-500">Access your role-specific dashboard & direct marketplace</p>
         </div>
 

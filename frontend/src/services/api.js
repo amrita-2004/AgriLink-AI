@@ -568,7 +568,7 @@ export const adminAPI = {
       () => [
         { id: 'usr_farmer_01', name: 'Ramesh Sharma', role: 'farmer', location: 'Hooghly, West Bengal', email: 'farmer@agrilink.ai', fpo_name: 'Hooghly Farmers FPO' },
         { id: 'usr_buyer_01', name: 'Pooja Verma', role: 'buyer', location: 'Kolkata, West Bengal', email: 'buyer@agrilink.ai', fpo_name: 'FreshBites Retail' },
-        { id: 'usr_admin_01', name: 'System Administrator', role: 'admin', location: 'National Operations Center', email: 'admin@agrilink.ai', fpo_name: 'FarmX Core' }
+        { id: 'usr_admin_01', name: 'System Administrator', role: 'admin', location: 'National Operations Center', email: 'admin@agrilink.ai', fpo_name: 'FramX Core' }
       ]
     );
   },

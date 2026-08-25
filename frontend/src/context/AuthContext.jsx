@@ -28,12 +28,12 @@ const PRESET_DEMO_USERS = {
   },
   'admin@agrilink.ai': {
     id: 'usr_admin_01',
-    name: 'FarmX System Administrator',
+    name: 'FramX System Administrator',
     email: 'admin@agrilink.ai',
     role: 'admin',
     phone: '+91 99000 11223',
     location: 'National Operations Center, Delhi NCR',
-    fpo_name: 'FarmX Platform Core',
+    fpo_name: 'FramX Platform Core',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     password: 'admin123'
   },
@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }) => {
 
     const newUser = {
       id: `usr_${Date.now()}`,
-      name: userData.name || 'FarmX Member',
+      name: userData.name || 'FramX Member',
       email: normalizedEmail,
       role: userData.role || 'farmer',
       phone: userData.phone || '+91 98000 00000',
