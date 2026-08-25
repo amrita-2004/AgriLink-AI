@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings(BaseModel):
-    PROJECT_NAME: str = "AgriLink AI"
+    PROJECT_NAME: str = "FarmX AI"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api"
     SECRET_KEY: str = os.getenv("SECRET_KEY", "agrilink-secret-super-key-2026-sih-ai-smart-market")

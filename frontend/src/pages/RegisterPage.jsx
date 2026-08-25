@@ -41,7 +41,7 @@ const RegisterPage = () => {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-700 to-emerald-400 flex items-center justify-center text-white mx-auto shadow-lg shadow-brand-600/30">
             <Sprout className="w-7 h-7" />
           </div>
-          <h1 className="font-display font-black text-2xl text-slate-900">Join AgriLink AI Marketplace</h1>
+          <h1 className="font-display font-black text-2xl text-slate-900">Join FarmX AI Marketplace</h1>
           <p className="text-xs text-slate-500">Connect directly without intermediaries and trade fairly</p>
         </div>
 
@@ -178,7 +178,7 @@ const RegisterPage = () => {
               disabled={loading}
               className="w-full py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs shadow-md shadow-brand-600/30 transition-all flex items-center justify-center gap-2 hover:scale-102"
             >
-              {loading ? 'Creating Account...' : 'Register on AgriLink AI'} <ArrowRight className="w-4 h-4" />
+              {loading ? 'Creating Account...' : 'Register on FarmX AI'} <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
