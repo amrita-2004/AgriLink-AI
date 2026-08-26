@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext(null);
 
 // ─── Local DB ───────────────────────────────────────────────────────────────
-const DB_KEY = 'framx_users_db';
+const DB_KEY = 'agrilink_ai_users_db';
 
 const getDB = () => {
   try { return JSON.parse(localStorage.getItem(DB_KEY) || '{}'); }
@@ -30,9 +30,9 @@ const seedDemoAccounts = () => {
       created_at: new Date().toISOString(),
     },
     'admin@agrilink.ai': {
-      id: 'usr_admin_01', name: 'FramX Administrator', email: 'admin@agrilink.ai',
+      id: 'usr_admin_01', name: 'AgriLink_AI Administrator', email: 'admin@agrilink.ai',
       password: 'admin123', role: 'admin', phone: '+91 99000 11223',
-      location: 'Delhi NCR', fpo_name: 'FramX Platform Core',
+      location: 'Delhi NCR', fpo_name: 'AgriLink_AI Platform Core',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       created_at: new Date().toISOString(),
     },
@@ -61,7 +61,7 @@ const AVATAR_MAP = {
 // ─── Try real backend, always fall back silently ─────────────────────────────
 const tryBackend = async (path, body = null) => {
   try {
-    const token = localStorage.getItem('framx_token');
+    const token = localStorage.getItem('agrilink_ai_token');
     const res = await fetch(`http://127.0.0.1:8000${path}`, {
       method: body ? 'POST' : 'GET',
       headers: {
@@ -89,8 +89,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     seedDemoAccounts();
-    const storedUser = localStorage.getItem('framx_user');
-    const storedToken = localStorage.getItem('framx_token');
+    const storedUser = localStorage.getItem('agrilink_ai_user');
+    const storedToken = localStorage.getItem('agrilink_ai_token');
     if (storedUser && storedToken) {
       try { setUser(JSON.parse(storedUser)); setToken(storedToken); }
       catch { /* invalid JSON, ignore */ }
@@ -123,8 +123,8 @@ export const AuthProvider = ({ children }) => {
       // Also save locally so they can log in offline
       db[email] = { ...backendUser, password };
       saveDB(db);
-      localStorage.setItem('framx_token', access_token);
-      localStorage.setItem('framx_user', JSON.stringify(backendUser));
+      localStorage.setItem('agrilink_ai_token', access_token);
+      localStorage.setItem('agrilink_ai_user', JSON.stringify(backendUser));
       setToken(access_token);
       setUser(backendUser);
       return { success: true, user: backendUser };
@@ -148,8 +148,8 @@ export const AuthProvider = ({ children }) => {
     saveDB(db);
 
     const tok = `tok_${newUser.role}_${Date.now()}`;
-    localStorage.setItem('framx_token', tok);
-    localStorage.setItem('framx_user', JSON.stringify(newUser));
+    localStorage.setItem('agrilink_ai_token', tok);
+    localStorage.setItem('agrilink_ai_user', JSON.stringify(newUser));
     setToken(tok);
     setUser(newUser);
     return { success: true, user: newUser };
@@ -169,8 +169,8 @@ export const AuthProvider = ({ children }) => {
       const db = getDB();
       db[normalizedEmail] = { ...backendUser, password };
       saveDB(db);
-      localStorage.setItem('framx_token', access_token);
-      localStorage.setItem('framx_user', JSON.stringify(backendUser));
+      localStorage.setItem('agrilink_ai_token', access_token);
+      localStorage.setItem('agrilink_ai_user', JSON.stringify(backendUser));
       setToken(access_token);
       setUser(backendUser);
       return { success: true, user: backendUser };
@@ -192,8 +192,8 @@ export const AuthProvider = ({ children }) => {
     }
 
     const tok = `tok_${localUser.role}_${Date.now()}`;
-    localStorage.setItem('framx_token', tok);
-    localStorage.setItem('framx_user', JSON.stringify(localUser));
+    localStorage.setItem('agrilink_ai_token', tok);
+    localStorage.setItem('agrilink_ai_user', JSON.stringify(localUser));
     setToken(tok);
     setUser(localUser);
     return { success: true, user: localUser };
@@ -213,8 +213,8 @@ export const AuthProvider = ({ children }) => {
 
   // ── LOGOUT ────────────────────────────────────────────────────────────────
   const logout = () => {
-    localStorage.removeItem('framx_token');
-    localStorage.removeItem('framx_user');
+    localStorage.removeItem('agrilink_ai_token');
+    localStorage.removeItem('agrilink_ai_user');
     setToken(null);
     setUser(null);
   };

@@ -121,7 +121,7 @@ const AIAnalyticsPage = () => {
           <Cpu className="w-3.5 h-3.5" /> AI Predictive Intelligence Lab
         </div>
         <h1 className="font-display font-black text-2xl sm:text-4xl text-white">
-          FramX AI Machine Learning Engine
+          AgriLink_AI Machine Learning Engine
         </h1>
         <p className="text-xs sm:text-sm text-slate-300 max-w-2xl">
           Test and simulate the three core artificial intelligence models: Demand Forecasting, Dynamic Fair Price Optimization, and Multi-Stop Route Planning.

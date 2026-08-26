@@ -10,7 +10,7 @@ const api = axios.create({
 
 // Interceptor to attach JWT token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('framx_token') || localStorage.getItem('agrilink_token');
+  const token = localStorage.getItem('agrilink_ai_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -568,7 +568,7 @@ export const adminAPI = {
       () => [
         { id: 'usr_farmer_01', name: 'Ramesh Sharma', role: 'farmer', location: 'Hooghly, West Bengal', email: 'farmer@agrilink.ai', fpo_name: 'Hooghly Farmers FPO' },
         { id: 'usr_buyer_01', name: 'Pooja Verma', role: 'buyer', location: 'Kolkata, West Bengal', email: 'buyer@agrilink.ai', fpo_name: 'FreshBites Retail' },
-        { id: 'usr_admin_01', name: 'System Administrator', role: 'admin', location: 'National Operations Center', email: 'admin@agrilink.ai', fpo_name: 'FramX Core' }
+        { id: 'usr_admin_01', name: 'System Administrator', role: 'admin', location: 'National Operations Center', email: 'admin@agrilink.ai', fpo_name: 'AgriLink_AI Core' }
       ]
     );
   },

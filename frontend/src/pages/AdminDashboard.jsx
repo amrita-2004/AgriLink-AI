@@ -84,7 +84,7 @@ const AdminDashboard = () => {
             <ShieldAlert className="w-3.5 h-3.5" /> Platform Governance & Moderation
           </div>
           <h1 className="font-display font-black text-2xl sm:text-3xl text-white">
-            FramX AI System Administration
+            AgriLink_AI System Administration
           </h1>
           <p className="text-xs text-slate-400">
             National agricultural marketplace monitoring, escrow clearing & supply-chain analytics.
