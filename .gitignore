@@ -8,7 +8,6 @@ backend/app/routes/__pycache__/
 .pytest_cache/
 
 # Build artifacts
-frontend/dist/
 frontend/.vite/
 dist/
 build/
