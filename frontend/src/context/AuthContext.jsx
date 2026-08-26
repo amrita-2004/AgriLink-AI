@@ -58,8 +58,14 @@ const AVATAR_MAP = {
   buyer: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
 };
 
-// ─── Try real backend, always fall back silently ─────────────────────────────
+// ─── Detect local dev vs Vercel/production ───────────────────────────────────
+const IS_LOCAL_DEV = typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+// ─── Try real backend only on local dev, always fall back silently ───────────
 const tryBackend = async (path, body = null) => {
+  // Skip backend entirely on Vercel / production — use localStorage only
+  if (!IS_LOCAL_DEV) return { ok: false, error: 'offline' };
   try {
     const token = localStorage.getItem('agrilink_ai_token');
     const res = await fetch(`http://127.0.0.1:8000${path}`, {
