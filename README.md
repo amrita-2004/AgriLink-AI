@@ -1,4 +1,4 @@
-# AgriLink_AI – AI-Powered Farmer-to-Market Digital Platform 🌾🚀
+# AgriLink_AI-Powered Farmer-to-Market Digital Platform 🌾🚀
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amrita-2004/AgriLink-AI)
 ![Version](https://img.shields.io/badge/version-2.0.0-brightgreen)
