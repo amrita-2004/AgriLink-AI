@@ -1,4 +1,4 @@
-# FramX AI – AI-Powered Farmer-to-Market Digital Platform 🌾🚀
+# AgriLink_AI – AI-Powered Farmer-to-Market Digital Platform 🌾🚀
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amrita-2004/AgriLink-AI)
 ![Version](https://img.shields.io/badge/version-2.0.0-brightgreen)
@@ -8,9 +8,9 @@
 
 > **"From Farm to Market, Without Unnecessary Middlemen."**
 
-**FramX AI** is a production-grade digital agricultural marketplace that connects farmers and Farmer Producer Organizations (FPOs) directly with consumers, retailers, restaurants, and bulk buyers.
+**AgriLink_AI** is a production-grade digital agricultural marketplace that connects farmers and Farmer Producer Organizations (FPOs) directly with consumers, retailers, restaurants, and bulk buyers.
 
-By leveraging machine learning for **Demand Forecasting**, **Dynamic Fair Price Optimization**, and **Multi-Stop Route Logistics**, FramX AI eliminates exploitative middlemen markups, increases farmer earnings by **+18-25%**, and lowers procurement costs for buyers by **20-24%**.
+By leveraging machine learning for **Demand Forecasting**, **Dynamic Fair Price Optimization**, and **Multi-Stop Route Logistics**, AgriLink_AI eliminates exploitative middlemen markups, increases farmer earnings by **+18-25%**, and lowers procurement costs for buyers by **20-24%**.
 
 ---
 
@@ -20,19 +20,19 @@ By leveraging machine learning for **Demand Forecasting**, **Dynamic Fair Price 
 > Major release: Full rebranding, MongoDB Atlas integration, and zero-failure authentication.
 
 #### ✅ New Features
-- 🏷️ **Rebranded to FramX AI** — Complete rename from "AgriLink AI" across all components, pages, config, and docs
-- 🗄️ **MongoDB Atlas Connected** — Production MongoDB cluster integrated (`framx_agrilink_db`)
+- 🏷️ **Rebranded to AgriLink_AI** — Complete rename from "AgriLink AI" across all components, pages, config, and docs
+- 🗄️ **MongoDB Atlas Connected** — Production MongoDB cluster integrated (`agrilink_ai_db`)
 - 🔐 **Zero-Failure Auth System** — Complete rewrite of registration and login with:
-  - Local `framx_users_db` (localStorage) as fallback database
+  - Local `agrilink_ai_users_db` (localStorage) as fallback database
   - Auto-seeds 4 demo accounts on first launch
   - 3-second timeout fallback — works 100% offline and on Vercel
-  - Consistent `framx_token` key used everywhere
+  - Consistent `agrilink_ai_token` key used everywhere
 - 🚀 **One-Click `start.bat` Launcher** — Auto installs Python & Node deps, launches backend + frontend, and opens browser automatically
 - 🌐 **Vercel Deployment Ready** — `vercel.json` SPA routing, root `package.json`, environment variable documentation
 
 #### 🐛 Bugs Fixed
 - ❌ **"Registration failed"** error — Caused by broken API fallback chain; completely rebuilt
-- ❌ Token key mismatch (`agrilink_token` vs `framx_token`) — Unified across `api.js` and `AuthContext`
+- ❌ Token key mismatch (`agrilink_token` vs `agrilink_ai_token`) — Unified across `api.js` and `AuthContext`
 - ❌ Backend offline causing hard crash on Vercel — Now uses `AbortSignal.timeout(3s)` with graceful local fallback
 - ❌ Demo accounts not available without backend — Now pre-seeded locally on app load
 - ❌ MongoDB connection not loading `.env` properly — Fixed `load_dotenv()` path resolution
@@ -91,7 +91,7 @@ By leveraging machine learning for **Demand Forecasting**, **Dynamic Fair Price 
 
 ## ⚡ 1-Click Interactive Demo
 
-FramX AI includes a built-in **1-Click Guided Demo Modal** accessible via the top navigation bar:
+AgriLink_AI includes a built-in **1-Click Guided Demo Modal** accessible via the top navigation bar:
 
 1. **Step 1 (Farmer Upload)**: Farmer lists *1,000 kg Tomato* with an expected price of *₹25/kg*.
 2. **Step 2 (AI Analysis)**: AI predicts *HIGH Demand (+18% growth)* and recommends selling at *₹28/kg* (+₹3,000 direct farmer profit).
@@ -165,7 +165,7 @@ The application will be live at:
 | Variable | Value |
 |---|---|
 | `MONGODB_URI` | `mongodb+srv://Vercel-Admin-mongoDB:rOLiH0y7GYQAbXi1@mongodb.m1gl9am.mongodb.net/?retryWrites=true&w=majority` |
-| `DATABASE_NAME` | `framx_agrilink_db` |
+| `DATABASE_NAME` | `agrilink_ai_db` |
 
 > **Note**: Even without a backend, the app runs fully in offline mode using localStorage fallback — login, register, and all demo features work on Vercel.
 
@@ -290,5 +290,5 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ---
 
 <div align="center">
-  <strong>FramX AI v2.0.0</strong> · Built with ❤️ for Indian Farmers · Powered by AI & MongoDB Atlas
+  <strong>AgriLink_AI v2.0.0</strong> · Built with ❤️ for Indian Farmers · Powered by AI & MongoDB Atlas
 </div>
