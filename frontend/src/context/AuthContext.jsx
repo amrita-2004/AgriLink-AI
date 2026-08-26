@@ -88,6 +88,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Clear any stale old-key data from previous framx_ naming
+    ['framx_token','framx_user','framx_users_db','agrilink_token'].forEach(k => localStorage.removeItem(k));
     seedDemoAccounts();
     const storedUser = localStorage.getItem('agrilink_ai_user');
     const storedToken = localStorage.getItem('agrilink_ai_token');
@@ -116,11 +118,12 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: 'This email is already registered. Please log in instead.' };
     }
 
-    // Try backend first
+    // Try backend first (3s timeout)
     const backendRes = await tryBackend('/api/auth/register', { ...formData, email, password });
+
     if (backendRes.ok && backendRes.data?.access_token) {
+      // ✅ Backend success
       const { access_token, user: backendUser } = backendRes.data;
-      // Also save locally so they can log in offline
       db[email] = { ...backendUser, password };
       saveDB(db);
       localStorage.setItem('agrilink_ai_token', access_token);
@@ -130,7 +133,32 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: backendUser };
     }
 
-    // Offline / Vercel fallback: save to localStorage
+    // ❌ Backend returned a real error (not offline) — show it, don't fall through
+    if (backendRes.error && backendRes.error !== 'offline') {
+      // Still save locally so the user can log in offline next time
+      const newUser = {
+        id: `usr_${Date.now()}`,
+        name: formData.name.trim(),
+        email,
+        role: formData.role || 'farmer',
+        phone: formData.phone || '',
+        location: formData.location || '',
+        fpo_name: formData.fpo_name || '',
+        avatar: AVATAR_MAP[formData.role] || AVATAR_MAP.buyer,
+        password,
+        created_at: new Date().toISOString(),
+      };
+      db[email] = newUser;
+      saveDB(db);
+      const tok = `tok_${newUser.role}_${Date.now()}`;
+      localStorage.setItem('agrilink_ai_token', tok);
+      localStorage.setItem('agrilink_ai_user', JSON.stringify(newUser));
+      setToken(tok);
+      setUser(newUser);
+      return { success: true, user: newUser };
+    }
+
+    // 📴 Offline / backend unreachable — use localStorage fallback
     const newUser = {
       id: `usr_${Date.now()}`,
       name: formData.name.trim(),

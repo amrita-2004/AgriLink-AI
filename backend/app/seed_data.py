@@ -10,6 +10,19 @@ from backend.app.database import (
     get_disputes_col
 )
 
+def _clear_col(col):
+    """Safely clear a collection regardless of backend (Local or MongoDB)."""
+    if hasattr(col, 'data'):
+        # LocalCollection — wipe list directly and save
+        col.data = []
+        col._save()
+    else:
+        # MongoCollectionWrapper — delete all documents
+        try:
+            col.raw_col.delete_many({})
+        except Exception:
+            pass
+
 def seed_database():
     users_col = get_users_col()
     products_col = get_products_col()
@@ -20,13 +33,13 @@ def seed_database():
     disputes_col = get_disputes_col()
 
     # Clear old records to guarantee fresh state
-    users_col.data = []
-    products_col.data = []
-    orders_col.data = []
-    deliveries_col.data = []
-    reviews_col.data = []
-    notifications_col.data = []
-    disputes_col.data = []
+    _clear_col(users_col)
+    _clear_col(products_col)
+    _clear_col(orders_col)
+    _clear_col(deliveries_col)
+    _clear_col(reviews_col)
+    _clear_col(notifications_col)
+    _clear_col(disputes_col)
 
     # 1. Seed Users
     farmer_user = {

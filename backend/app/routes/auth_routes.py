@@ -22,24 +22,31 @@ def register_user(user_in: UserCreate):
     user_dict["email"] = user_dict["email"].lower()
     raw_pwd = user_dict.pop("password")
     user_dict["password"] = get_password_hash(raw_pwd)
-    
+
     # Assign default avatars based on role
     if not user_dict.get("avatar"):
-        if user_dict.get("role") == "farmer":
-            user_dict["avatar"] = "https://images.unsplash.com/photo-1592417817098-8f3d6ef23992?w=150&auto=format&fit=crop&q=80"
-        elif user_dict.get("role") == "admin":
-            user_dict["avatar"] = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
-        else:
-            user_dict["avatar"] = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+        role = user_dict.get("role", "buyer")
+        avatars = {
+            "farmer": "https://images.unsplash.com/photo-1592417817098-8f3d6ef23992?w=150&auto=format&fit=crop&q=80",
+            "admin":  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+            "logistics": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=150&auto=format&fit=crop&q=80",
+        }
+        user_dict["avatar"] = avatars.get(role, "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80")
 
     created = users_col.insert_one(user_dict)
-    
-    # Generate token
-    token = create_access_token({"sub": created["id"], "role": created["role"], "name": created["name"]})
+
+    # Build clean dict for UserOut (strip internal Mongo _id / password)
+    clean = {k: v for k, v in created.items() if k not in ("_id", "password")}
+
+    token = create_access_token({
+        "sub": clean.get("id", ""),
+        "role": clean.get("role", "buyer"),
+        "name": clean.get("name", ""),
+    })
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": UserOut(**created)
+        "user": UserOut(**clean),
     }
 
 @router.post("/login", response_model=Token)
@@ -53,16 +60,23 @@ def login_user(creds: UserLogin):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token = create_access_token({"sub": user["id"], "role": user.get("role", "buyer"), "name": user.get("name")})
+    # Strip internal fields before returning
+    clean = {k: v for k, v in user.items() if k not in ("_id", "password")}
+    token = create_access_token({
+        "sub": clean.get("id", ""),
+        "role": clean.get("role", "buyer"),
+        "name": clean.get("name", ""),
+    })
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": UserOut(**user)
+        "user": UserOut(**clean),
     }
 
 @router.get("/me", response_model=UserOut)
 def get_current_user_profile(user: dict = Depends(get_required_user)):
-    return UserOut(**user)
+    clean = {k: v for k, v in user.items() if k not in ("_id", "password")}
+    return UserOut(**clean)
 
 @router.get("/demo-accounts")
 def get_demo_accounts():
